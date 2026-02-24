@@ -1,0 +1,24 @@
+livox_lidar_publisher:
+  ros__parameters:
+    cmdline_input_bd_code: "livox0000000001"
+    data_src: 0
+    enable_timesync: false
+    frame_id: "livox_frame"
+    lidar0_broadcast_code: "0T9DFBC00401611"
+    lidar0_coordinate: 0
+    lidar0_enable_connect: false
+    lidar0_enable_fan: true
+    lidar0_enable_high_sensitivity: false
+    lidar0_extrinsic_parameter_source: 0
+    lidar0_imu_rate: 1
+    lidar0_return_mode: 0
+    lvx_file_path: "/home/livox/livox_test.lvx"
+    multi_topic: 0
+    num_lidars: 1
+    output_data_type: 0
+    publish_freq: 10.000000
+    timesync_baudrate_index: 2
+    timesync_comm_device_type: 0
+    timesync_device_name: "/dev/ttyUSB0"
+    timesync_parity_index: 0
+    xfer_format: 1

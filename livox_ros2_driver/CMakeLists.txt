@@ -23,9 +23,6 @@ project(${PROJECT_NAME} VERSION ${LIVOX_ROS_DRIVER_VERSION} LANGUAGES CXX)
 message(STATUS "${PROJECT_NAME} version: ${LIVOX_ROS_DRIVER_VERSION}")
 
 # find dependencies
-# uncomment the following section in order to fill in
-# further dependencies manually.
-# find_package(<dependency> REQUIRED)
 find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
 find_package(PCL REQUIRED)
@@ -46,7 +43,7 @@ find_library(LIVOX_SDK_LIBRARY liblivox_sdk_static.a /usr/local/lib)
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
-# livox ros2 driver target
+# Shared library (data handling, LDS, LDDC, etc. — everything except the node main)
 ament_auto_add_library(${PROJECT_NAME} SHARED
   livox_ros2_driver/lvx_file.cpp
   livox_ros2_driver/ldq.cpp
@@ -55,7 +52,6 @@ ament_auto_add_library(${PROJECT_NAME} SHARED
   livox_ros2_driver/lds_lidar.cpp
   livox_ros2_driver/lds_hub.cpp
   livox_ros2_driver/lddc.cpp
-  livox_ros2_driver/livox_ros2_driver.cpp
   timesync/timesync.cpp
   timesync/user_uart/user_uart.cpp
   common/comm/comm_protocol.cpp
@@ -69,7 +65,7 @@ target_compile_options(${PROJECT_NAME}
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${livox_sdk_INCLUDE_DIRS})
 
-# include file direcotry
+# include file directories
 target_include_directories(${PROJECT_NAME} PUBLIC
   ${PCL_INCLUDE_DIRS}
   ${APR_INCLUDE_DIRS}
@@ -89,24 +85,40 @@ target_link_libraries(${PROJECT_NAME}
 	${PCL_LIBRARIES}
 	${APR_LIBRARIES}
 )
-#  ${sensor_msgs_LIBRARIES}
-#  ${std_msgs_LIBRARIES}
-#  ${Boost_SYSTEM_LIBRARY}
 
+# Lifecycle node executable
+add_executable(${PROJECT_NAME}_node
+  livox_ros2_driver/livox_ros2_driver.cpp
+)
 
-rclcpp_components_register_node(${PROJECT_NAME}
-  PLUGIN "livox_ros::LivoxDriver"
-  EXECUTABLE ${PROJECT_NAME}_node
+target_include_directories(${PROJECT_NAME}_node PRIVATE
+  ${livox_sdk_INCLUDE_DIRS}
+  ${PCL_INCLUDE_DIRS}
+  common
+  common/comm
+  timesync
+  livox_ros2_driver
+)
+
+target_link_libraries(${PROJECT_NAME}_node
+  ${PROJECT_NAME}
+)
+
+ament_target_dependencies(${PROJECT_NAME}_node
+  rclcpp
+  rclcpp_lifecycle
+  lifecycle_msgs
+  sensor_msgs
+  pcl_conversions
+  livox_interfaces
+)
+
+install(TARGETS ${PROJECT_NAME}_node
+  DESTINATION lib/${PROJECT_NAME}
 )
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
-  # the following line skips the linter which checks for copyrights
-  # uncomment the line when a copyright and license is not present in all source files
-  #set(ament_cmake_copyright_FOUND TRUE)
-  # the following line skips cpplint (only works in a git repo)
-  # uncomment the line when this package is not in a git repo
-  #set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 endif()
 

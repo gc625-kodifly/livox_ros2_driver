@@ -10,6 +10,8 @@
   <buildtool_depend>ament_cmake_auto</buildtool_depend>
 
   <depend>rclcpp</depend>
+  <depend>rclcpp_lifecycle</depend>
+  <depend>lifecycle_msgs</depend>
   <depend>rclcpp_components</depend>
   <depend>std_msgs</depend>
   <depend>livox_interfaces</depend>

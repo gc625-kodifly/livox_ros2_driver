@@ -39,30 +39,56 @@
 
 #include <future>
 #include <memory>
+#include <string>
 #include <thread>
+#include <vector>
 
 #include "rclcpp/rclcpp.hpp"
+#include "rclcpp_lifecycle/lifecycle_node.hpp"
+#include "rclcpp_lifecycle/lifecycle_publisher.hpp"
 
 #include "lddc.h"
 
 namespace livox_ros
 {
 
-class LivoxDriver: public rclcpp::Node
+using LifecycleCallbackReturn =
+    rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
+
+class LivoxDriver : public rclcpp_lifecycle::LifecycleNode
 {
 public:
-
-  explicit LivoxDriver(const rclcpp::NodeOptions & options);
-
+  LivoxDriver();
   ~LivoxDriver();
 
+  LifecycleCallbackReturn on_configure(const rclcpp_lifecycle::State &state);
+  LifecycleCallbackReturn on_activate(const rclcpp_lifecycle::State &state);
+  LifecycleCallbackReturn on_deactivate(const rclcpp_lifecycle::State &state);
+  LifecycleCallbackReturn on_cleanup(const rclcpp_lifecycle::State &state);
+  LifecycleCallbackReturn on_shutdown(const rclcpp_lifecycle::State &state);
+  LifecycleCallbackReturn on_error(const rclcpp_lifecycle::State &state);
+
 private:
+  void declareParameters();
+  void readParameters();
+  void writeCurrentConfig();
   void pollThread();
 
   std::unique_ptr<Lddc> lddc_ptr_;
   std::shared_ptr<std::thread> poll_thread_;
   std::shared_future<void> future_;
   std::promise<void> exit_signal_;
+
+  int xfer_format_;
+  int multi_topic_;
+  int data_src_;
+  double publish_freq_;
+  int output_type_;
+  std::string frame_id_;
+  std::string cmdline_bd_code_;
+  std::string lvx_file_path_;
+  int num_lidars_;
+  bool enable_timesync_;
 };
 
 }  // namespace livox_ros

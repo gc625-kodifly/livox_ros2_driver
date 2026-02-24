@@ -30,6 +30,7 @@
 #include "livox_sdk.h"
 
 #include <rclcpp/rclcpp.hpp>
+#include <rclcpp_lifecycle/lifecycle_node.hpp>
 #include <pcl_conversions/pcl_conversions.h>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <sensor_msgs/msg/imu.hpp>
@@ -67,7 +68,7 @@ class Lddc {
 
   uint8_t GetTransferFormat(void) { return transfer_format_; }
   uint8_t IsMultiTopic(void) { return use_multi_topic_; }
-  void SetRosNode(rclcpp::Node * node) { cur_node_ = node; }
+  void SetRosNode(rclcpp_lifecycle::LifecycleNode * node) { cur_node_ = node; }
   void SetPublishFrq(uint32_t frq) { publish_frq_ = frq; }
 
   Lds *lds_;
@@ -109,7 +110,7 @@ class Lddc {
   std::shared_ptr<rclcpp::PublisherBase>global_pub_;
   std::shared_ptr<rclcpp::PublisherBase>private_imu_pub_[kMaxSourceLidar];
   std::shared_ptr<rclcpp::PublisherBase>global_imu_pub_;
-  rclcpp::Node* cur_node_;
+  rclcpp_lifecycle::LifecycleNode* cur_node_;
   // rclcpp::rosbag::Bag *bag_;
 };
 

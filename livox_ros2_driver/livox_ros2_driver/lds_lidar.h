@@ -33,7 +33,7 @@
 
 #include "lds.h"
 #include "livox_sdk.h"
-#include "rapidjson/document.h"
+#include "rclcpp/rclcpp.hpp"
 #include "timesync.h"
 
 namespace livox_ros {
@@ -49,8 +49,12 @@ class LdsLidar : public Lds {
   }
 
   int InitLdsLidar(std::vector<std::string> &broadcast_code_strs,
-                   const char *user_config_path);
+                   const std::vector<UserRawConfig> &lidar_configs,
+                   bool enable_timesync,
+                   const TimeSyncConfig &ts_config);
   int DeInitLdsLidar(void);
+
+  void SetLogger(rclcpp::Logger logger) { logger_ = logger; }
 
  private:
   LdsLidar(uint32_t interval_ms);
@@ -98,8 +102,6 @@ class LdsLidar : public Lds {
   void EnableAutoConnectMode(void) { auto_connect_mode_ = true; }
   void DisableAutoConnectMode(void) { auto_connect_mode_ = false; }
   bool IsAutoConnectMode(void) { return auto_connect_mode_; }
-  int ParseTimesyncConfig(rapidjson::Document &doc);
-  int ParseConfigFile(const char *pathname);
   int AddRawUserConfig(UserRawConfig &config);
   bool IsExistInRawConfig(const char *broadcast_code);
   int GetRawConfig(const char *broadcast_code, UserRawConfig &config);
@@ -114,6 +116,8 @@ class LdsLidar : public Lds {
   TimeSync *timesync_;
   TimeSyncConfig timesync_config_;
   std::mutex config_mutex_;
+
+  rclcpp::Logger logger_{rclcpp::get_logger("lds_lidar")};
 };
 
 }  // namespace livox_ros
